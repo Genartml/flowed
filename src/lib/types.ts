@@ -57,6 +57,7 @@ export interface SharedConfig {
   founderRole?: string;
   founderBio?: string;
   founderAvatar?: string;
+  tourCompleted?: boolean;
 }
 
 export interface EntityConfig {

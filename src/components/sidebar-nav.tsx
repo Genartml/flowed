@@ -159,7 +159,7 @@ export function SidebarNav() {
         <div className="mx-5 mt-3 mb-2 border-t border-zinc-800" />
 
         {/* Navigation */}
-        <nav className={`flex-1 px-3 py-2 space-y-1 transition-opacity duration-150 ${isPending ? "opacity-60" : ""}`}>
+        <nav id="tour-sidebar-nav" className={`flex-1 px-3 py-2 space-y-1 transition-opacity duration-150 ${isPending ? "opacity-60" : ""}`}>
           {navItems.map((item) => {
             const isActive = optimisticPath.startsWith(item.href);
             const Icon = item.icon;

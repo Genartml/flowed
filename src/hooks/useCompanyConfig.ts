@@ -45,6 +45,7 @@ export function useCompanyConfig(entity: Entity) {
           founderRole: sharedData.founderRole || "",
           founderBio: sharedData.founderBio || "",
           founderAvatar: sharedData.founderAvatar || "",
+          tourCompleted: !!sharedData.tourCompleted,
         });
       }
 
@@ -175,6 +176,26 @@ export function useCompanyConfig(entity: Entity) {
     []
   );
 
+  const completeTour = useCallback(
+    async () => {
+      const userId = userIdRef.current;
+      if (!userId) return;
+
+      setSharedConfig((prev) => ({ ...prev, tourCompleted: true }));
+
+      const { error } = await supabase
+        .from("config")
+        .update({
+          tourCompleted: true,
+          updatedAt: new Date().toISOString(),
+        })
+        .eq("id", "shared")
+        .eq("user_id", userId);
+      if (error) console.error("Error completing tour:", error);
+    },
+    []
+  );
+
   return {
     sharedConfig,
     entityConfig,
@@ -184,5 +205,6 @@ export function useCompanyConfig(entity: Entity) {
     updateTeamSize,
     updateCompanySettings,
     updateFounderProfile,
+    completeTour,
   };
 }
