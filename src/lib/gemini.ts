@@ -110,7 +110,7 @@ Give ONE sharp, actionable insight sentence (max 30 words) about the current fin
 export async function analyseSubscriptions(
   subscriptions: Array<{ name: string; amount: number; category: string; billingCycle: string }>
 ): Promise<Array<{ id: string; name: string; verdict: string; reasoning: string }>> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
   const subList = subscriptions
     .map((s, i) => `[ID: sub_${i}] ${s.name}: ${s.amount} (${s.billingCycle}) - ${s.category}`)
