@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-// Verify that the requesting user is the admin
-async function verifyAdmin() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function verifyAdmin(): Promise<{ user: any; error?: string } | { user: null; error: string }> {
   const cookieStore = cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -23,12 +23,12 @@ async function verifyAdmin() {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not logged in" };
+  if (!user) return { user: null, error: "Not logged in" };
 
   const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) return { error: "ADMIN_EMAIL env var not set on server", email: user.email };
+  if (!adminEmail) return { user: null, error: "ADMIN_EMAIL env var not set on server" };
   if (user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
-    return { error: `Your email (${user.email}) doesn't match ADMIN_EMAIL. Set ADMIN_EMAIL to: ${user.email}`, email: user.email };
+    return { user: null, error: `Your email (${user.email}) does not match ADMIN_EMAIL. Set ADMIN_EMAIL to: ${user.email}` };
   }
 
   return { user };
@@ -39,7 +39,6 @@ export async function GET() {
   if (!result.user) {
     return NextResponse.json({ error: result.error }, { status: 403 });
   }
-  const admin = result.user;
 
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceRoleKey) {

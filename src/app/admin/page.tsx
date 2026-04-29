@@ -134,6 +134,7 @@ export default function AdminPage() {
                     className="w-full px-6 py-4 flex items-center justify-between hover:bg-zinc-800/50 transition-colors text-left">
                     <div className="flex items-center gap-4 min-w-0">
                       <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold text-zinc-400 shrink-0 overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         {user.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : (user.email?.[0] || "?").toUpperCase()}
                       </div>
                       <div className="min-w-0">
