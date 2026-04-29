@@ -93,6 +93,13 @@ export default function LoginPage() {
       return;
     }
 
+    // Trigger welcome email in the background
+    fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    }).catch((err) => console.error("Failed to trigger welcome email:", err));
+
     // Check if user was actually created and confirmed
     // Supabase may require email verification
     if (data.user && data.session) {
