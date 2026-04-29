@@ -16,6 +16,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
+import { LandingProfileDropdown } from "@/components/landing-profile-dropdown";
 
 export const metadata: Metadata = {
   title: "Flowwled — AI-Powered Financial Cockpit for Solo Founders & Freelancers",
@@ -153,9 +154,7 @@ export default async function LandingPage() {
                 >
                   Dashboard <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
-                <div className="h-9 w-9 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-sm font-black text-emerald-400 uppercase">
-                  {user.email?.charAt(0) || "U"}
-                </div>
+                <LandingProfileDropdown email={user.email || ""} />
               </>
             ) : (
               <>
