@@ -153,3 +153,48 @@ Return ONLY a valid JSON array of objects, with no markdown, no code fences, mat
     return [];
   }
 }
+
+export async function generateInvestorUpdate(
+  metrics: CockpitMetrics,
+  expenses: Array<{ name: string; amount: number; category: string }>,
+  revenueSources: Array<{ name: string; amount: number }>,
+  companyPrompt?: string
+): Promise<string> {
+  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+  const topExpenses = expenses
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5)
+    .map((e) => `- ${e.name} (${e.category}): ₹${e.amount}`)
+    .join("\n");
+
+  const topRevenue = revenueSources
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5)
+    .map((r) => `- ${r.name}: ₹${r.amount}`)
+    .join("\n");
+
+  const prompt = `You are an executive assistant drafting a monthly investor update email for a startup.
+${companyPrompt ? `Company Context: ${companyPrompt}` : ""}
+
+Here are the raw financial metrics for this month:
+- Total Funds in Bank: ₹${metrics.totalFunds}
+- Monthly Burn Rate: ₹${metrics.monthlyBurn}
+- Monthly Revenue/Income: ₹${metrics.monthlyIncome}
+- Estimated Runway: ${metrics.runway} months
+
+Top 5 Expenses this month:
+${topExpenses || "None"}
+
+Top Revenue Sources this month:
+${topRevenue || "None"}
+
+Write a professional, concise, Silicon Valley-style investor update email. 
+Structure it clearly with sections (e.g., Highlights, Financials, Lowlights/Challenges, Asks).
+Weave the raw numbers into a cohesive narrative in the Financials section (e.g. "Our burn rate this month was ₹X, leaving us with ₹Y in the bank and Z months of runway. Our biggest cost center was...").
+Use placeholders like [Insert Key Product Milestone Here] or [Insert Ask Here] for the founder to fill in the non-financial details.
+Tone: Confident, transparent, data-driven, and concise. Do NOT use markdown code blocks, just return the raw formatted text that can be copied directly into an email client.`;
+
+  const result = await model.generateContent(prompt);
+  return result.response.text().trim();
+}
