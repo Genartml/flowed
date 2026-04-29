@@ -16,6 +16,8 @@ export interface Expense {
   condition: string;
   createdAt: Date;
   entity: Entity;
+  isRecurring?: boolean;
+  billingCycle?: "monthly" | "yearly" | null;
 }
 
 export interface Client {
@@ -41,6 +43,7 @@ export interface MoneyMovement {
   category: string;
   note: string;
   isRecurring: boolean;
+  isRecurringRevenue?: boolean;
   createdAt: Date;
   entity: Entity;
 }
@@ -90,6 +93,8 @@ export interface ExpenseFormData {
   reason: string;
   process: string;
   outcome: string;
+  isRecurring: boolean;
+  billingCycle: "monthly" | "yearly" | null;
 }
 
 export const GENARTML_CATEGORIES = [

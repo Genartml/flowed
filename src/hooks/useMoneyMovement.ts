@@ -61,6 +61,7 @@ export function useMoneyMovement(entity: Entity) {
     source: string,
     amount: number,
     category: string,
+    isRecurringRevenue?: boolean,
     note?: string
   ) => {
     const userId = userIdRef.current;
@@ -76,6 +77,7 @@ export function useMoneyMovement(entity: Entity) {
       category,
       note: note || "",
       isRecurring: false,
+      isRecurringRevenue: isRecurringRevenue || false,
       entity,
     };
     setMovements((prev) => [newMovement, ...prev]);
@@ -87,6 +89,7 @@ export function useMoneyMovement(entity: Entity) {
       category,
       note: note || "",
       isRecurring: false,
+      isRecurringRevenue: isRecurringRevenue || false,
       entity,
       user_id: userId,
     });

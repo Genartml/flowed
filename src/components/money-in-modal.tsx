@@ -6,12 +6,13 @@ import { Loader2, X } from "lucide-react";
 interface MoneyInModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (name: string, amount: number) => Promise<void>;
+  onConfirm: (name: string, amount: number, isRecurringRevenue: boolean) => Promise<void>;
 }
 
 export function MoneyInModal({ open, onClose, onConfirm }: MoneyInModalProps) {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
+  const [isRecurringRevenue, setIsRecurringRevenue] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -26,9 +27,10 @@ export function MoneyInModal({ open, onClose, onConfirm }: MoneyInModalProps) {
     setError("");
 
     try {
-      await onConfirm(name, parseFloat(amount));
+      await onConfirm(name, parseFloat(amount), isRecurringRevenue);
       setName("");
       setAmount("");
+      setIsRecurringRevenue(false);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to log income");
@@ -78,6 +80,22 @@ export function MoneyInModal({ open, onClose, onConfirm }: MoneyInModalProps) {
               className="w-full border border-zinc-700 bg-zinc-950 text-emerald-400 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 tabular-nums font-bold text-lg transition-colors"
               placeholder="e.g. 50000"
             />
+          </div>
+
+          <div className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
+            <div>
+              <h4 className="text-sm font-bold text-zinc-100">Recurring MRR</h4>
+              <p className="text-xs text-zinc-500">Is this a recurring monthly retainer?</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={isRecurringRevenue}
+                onChange={(e) => setIsRecurringRevenue(e.target.checked)}
+              />
+              <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            </label>
           </div>
 
           {error && <p className="text-sm font-semibold text-red-400 bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</p>}

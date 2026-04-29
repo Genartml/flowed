@@ -174,7 +174,7 @@ export default function DashboardPage() {
       <MoneyInModal
         open={moneyInOpen}
         onClose={() => setMoneyInOpen(false)}
-        onConfirm={async (name, amount) => addMoneyIn(name, amount, "Revenue")}
+        onConfirm={async (name, amount, isRecurringRevenue) => addMoneyIn(name, amount, "Revenue", isRecurringRevenue)}
       />
       <ManualExpenseModal
         open={manualExpenseOpen}

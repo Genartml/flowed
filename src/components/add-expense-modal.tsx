@@ -37,6 +37,8 @@ export function AddExpenseModal({
     reason: "",
     process: "",
     outcome: "",
+    isRecurring: false,
+    billingCycle: null,
   });
   const [analysis, setAnalysis] = useState<FlowwledAnalysis | null>(null);
   const [analysing, setAnalysing] = useState(false);
@@ -51,6 +53,8 @@ export function AddExpenseModal({
       reason: "",
       process: "",
       outcome: "",
+      isRecurring: false,
+      billingCycle: null,
     });
     setAnalysis(null);
     setStep("form");
@@ -182,6 +186,51 @@ export function AddExpenseModal({
                   ))}
                 </select>
               </div>
+
+              {/* Recurring Toggle */}
+              <div className="flex items-center justify-between sm:col-span-2 bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
+                <div>
+                  <h4 className="text-sm font-bold text-zinc-100">Recurring Subscription</h4>
+                  <p className="text-xs text-zinc-500">Is this a monthly or yearly charge?</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={formData.isRecurring}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isRecurring: e.target.checked, billingCycle: e.target.checked ? "monthly" : null })
+                    }
+                  />
+                  <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+              </div>
+
+              {/* Billing Cycle (Conditional) */}
+              {formData.isRecurring && (
+                <div className="sm:col-span-2 flex gap-3">
+                  <button
+                    onClick={() => setFormData({ ...formData, billingCycle: "monthly" })}
+                    className={`flex-1 py-2 rounded-xl text-sm font-bold transition-colors ${
+                      formData.billingCycle === "monthly"
+                        ? "bg-emerald-500 text-zinc-950"
+                        : "bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    onClick={() => setFormData({ ...formData, billingCycle: "yearly" })}
+                    className={`flex-1 py-2 rounded-xl text-sm font-bold transition-colors ${
+                      formData.billingCycle === "yearly"
+                        ? "bg-emerald-500 text-zinc-950"
+                        : "bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    Yearly
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Reason */}

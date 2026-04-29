@@ -47,6 +47,8 @@ export function useExpenses(entity: Entity) {
             condition: d.aiCondition || "",
             createdAt: new Date(d.createdAt),
             entity: d.entity,
+            isRecurring: d.isRecurring || false,
+            billingCycle: d.billingCycle || null,
           })) as Expense[]
         );
       }
@@ -100,6 +102,8 @@ export function useExpenses(entity: Entity) {
       condition: analysis.condition,
       createdAt: new Date(),
       entity,
+      isRecurring: formData.isRecurring,
+      billingCycle: formData.billingCycle,
     };
     
     setExpenses((prev) => [newExpense, ...prev]);
