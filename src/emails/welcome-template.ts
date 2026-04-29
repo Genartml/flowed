@@ -9,7 +9,7 @@ export function getWelcomeEmailHtml(userName: string = "Valued User"): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to Flowled</title>
+  <title>Welcome to Flowwled</title>
 </head>
 <body style="background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;margin:0;padding:0;">
   <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0;padding:0;">
@@ -20,7 +20,7 @@ export function getWelcomeEmailHtml(userName: string = "Valued User"): string {
           <!-- Logo -->
           <tr>
             <td align="center" style="padding:8px 0 24px 0;">
-              <img src="${baseUrl}/brand/logo-full.png" width="140" alt="Flowled" style="display:block;margin:0 auto;" />
+              <img src="${baseUrl}/brand/logo-full.png" width="140" alt="Flowwled" style="display:block;margin:0 auto;" />
             </td>
           </tr>
 
@@ -28,7 +28,7 @@ export function getWelcomeEmailHtml(userName: string = "Valued User"): string {
           <tr>
             <td align="center" style="padding:0 0 20px 0;">
               <h1 style="color:#000000;font-size:24px;font-weight:600;text-align:center;margin:0;letter-spacing:-0.5px;">
-                Welcome to Flowled
+                Welcome to Flowwled
               </h1>
             </td>
           </tr>
@@ -46,7 +46,7 @@ export function getWelcomeEmailHtml(userName: string = "Valued User"): string {
           <tr>
             <td style="padding:0 0 16px 0;">
               <p style="color:#374151;font-size:15px;line-height:24px;margin:0;">
-                We're thrilled to have you on board. Flowled is your dedicated ledger and financial tracking application, designed to give you complete clarity over your expenses and money movement.
+                We're thrilled to have you on board. Flowwled is your dedicated ledger and financial tracking application, designed to give you complete clarity over your expenses and money movement.
               </p>
             </td>
           </tr>
@@ -80,7 +80,7 @@ export function getWelcomeEmailHtml(userName: string = "Valued User"): string {
           <tr>
             <td align="center" style="padding:16px 0 0 0;">
               <p style="color:#666666;font-size:12px;line-height:20px;margin:0;">
-                Lakhu Teleservices &bull; Flowled App
+                Flowwled &mdash; Your Financial Clarity App
               </p>
               <p style="color:#666666;font-size:12px;line-height:20px;margin:4px 0 0 0;">
                 If you have any questions, feel free to reply to this email or contact support.

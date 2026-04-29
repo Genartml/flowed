@@ -23,9 +23,9 @@ export async function GET(request: Request) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Flowled <hello@flowwled.com>',
+      from: 'Flowwled <hello@flowwled.com>',
       to: [email],
-      subject: 'Welcome to Flowled! (Test)',
+      subject: 'Welcome to Flowwled! (Test)',
       html: getWelcomeEmailHtml('Test User'),
     });
 

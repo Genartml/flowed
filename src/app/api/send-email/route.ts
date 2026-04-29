@@ -20,9 +20,9 @@ export async function POST(request: Request) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'Flowled <hello@flowwled.com>',
+      from: 'Flowwled <hello@flowwled.com>',
       to: [email],
-      subject: 'Welcome to Flowled!',
+      subject: 'Welcome to Flowwled!',
       html: getWelcomeEmailHtml(userName || 'Valued User'),
     });
 
