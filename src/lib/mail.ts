@@ -1,29 +1,25 @@
-import { getResend } from "./resend";
-import FlowledEmailTemplate from "@/emails/welcome-template";
+const baseUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : process.env.NEXT_PUBLIC_APP_URL || "https://flowwled.com";
 
 export async function sendWelcomeEmail(email: string, userName?: string) {
-  if (!process.env.RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is not set in environment variables.");
-    return { success: false, error: "Missing API Key" };
-  }
-
   console.log(`Attempting to send welcome email to: ${email}`);
   try {
-    const resend = getResend();
-    const { data, error } = await resend.emails.send({
-      from: 'Flowled <hello@flowwled.com>',
-      to: [email],
-      subject: 'Welcome to Flowled!',
-      react: FlowledEmailTemplate({ userName }),
+    const response = await fetch(`${baseUrl}/api/send-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, userName }),
     });
 
-    if (error) {
-      console.error("Error sending welcome email:", error);
-      return { success: false, error };
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("Error sending welcome email:", result);
+      return { success: false, error: result.error };
     }
 
-    console.log("Welcome email sent successfully:", data);
-    return { success: true, data };
+    console.log("Welcome email sent successfully:", result);
+    return { success: true, data: result };
   } catch (error) {
     console.error("Failed to send welcome email:", error);
     return { success: false, error };
