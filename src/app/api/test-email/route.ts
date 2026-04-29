@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
-import { FlowledEmailTemplate } from '@/emails/welcome-template';
+import { getWelcomeEmailHtml } from '@/emails/welcome-template';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
       from: 'Flowled <hello@flowwled.com>',
       to: [email],
       subject: 'Welcome to Flowled! (Test)',
-      react: FlowledEmailTemplate({ userName: 'Test User' }),
+      html: getWelcomeEmailHtml('Test User'),
     });
 
     if (error) {

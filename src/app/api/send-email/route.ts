@@ -1,9 +1,16 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
-import { FlowledEmailTemplate } from '@/emails/welcome-template';
+import { getWelcomeEmailHtml } from '@/emails/welcome-template';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: 'RESEND_API_KEY not configured' }, { status: 500 });
+  }
+
+  const resend = new Resend(apiKey);
 
   try {
     const { email, userName } = await request.json();
@@ -16,7 +23,7 @@ export async function POST(request: Request) {
       from: 'Flowled <hello@flowwled.com>',
       to: [email],
       subject: 'Welcome to Flowled!',
-      react: FlowledEmailTemplate({ userName: userName || 'Valued User' }),
+      html: getWelcomeEmailHtml(userName || 'Valued User'),
     });
 
     if (error) {
