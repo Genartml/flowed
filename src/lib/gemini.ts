@@ -116,7 +116,7 @@ export async function analyseSubscriptions(
     .map((s, i) => `[ID: sub_${i}] ${s.name}: ${s.amount} (${s.billingCycle}) - ${s.category}`)
     .join("\n");
 
-  const prompt = `You are an aggressive "Zombie SaaS Killer" AI auditor for a startup.
+  const prompt = `You are a strict SaaS Optimization AI auditor for a startup.
 Your job is to identify redundant, unused, or overpriced subscriptions.
 
 Here is the list of active recurring subscriptions:
@@ -124,18 +124,18 @@ ${subList || "No subscriptions."}
 
 Instructions:
 1. Identify any clear overlaps (e.g. paying for Notion AND Asana AND Trello).
-2. Flag anything that is notoriously a "zombie" candidate (rarely used tools forgotten by teams).
+2. Flag anything that is notoriously an inactive or forgotten tool.
 3. If a tool is essential and has no overlap, mark it as "Essential".
 4. If a tool overlaps with another, mark it as "Duplicate".
 5. If a tool seems unusually expensive for a typical startup, mark it as "Overpriced".
-6. If a tool is likely unused, mark it as "Zombie".
+6. If a tool is likely unused or forgotten, mark it as "Dormant".
 
 Return ONLY a valid JSON array of objects, with no markdown, no code fences, matching this EXACT schema:
 [
   {
     "id": "sub_0",
     "name": "<Tool Name>",
-    "verdict": "Zombie" | "Overpriced" | "Essential" | "Duplicate",
+    "verdict": "Dormant" | "Overpriced" | "Essential" | "Duplicate",
     "reasoning": "<1 sentence sharp explanation why>"
   }
 ]`;
