@@ -23,19 +23,23 @@ async function verifyAdmin() {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) return { error: "Not logged in" };
 
   const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail || user.email !== adminEmail) return null;
+  if (!adminEmail) return { error: "ADMIN_EMAIL env var not set on server", email: user.email };
+  if (user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
+    return { error: `Your email (${user.email}) doesn't match ADMIN_EMAIL. Set ADMIN_EMAIL to: ${user.email}`, email: user.email };
+  }
 
-  return user;
+  return { user };
 }
 
 export async function GET() {
-  const admin = await verifyAdmin();
-  if (!admin) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  const result = await verifyAdmin();
+  if (!result.user) {
+    return NextResponse.json({ error: result.error }, { status: 403 });
   }
+  const admin = result.user;
 
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceRoleKey) {
