@@ -7,7 +7,6 @@ import {
   Hr,
   Html,
   Img,
-  Link,
   Preview,
   Section,
   Text,
@@ -57,7 +56,7 @@ export const MonthlySummaryEmailTemplate = ({
             </Heading>
 
             <Text className="text-gray-700 text-[15px] leading-[24px] mb-[24px] text-center">
-              Hello {userName}, here's a quick look at your expenses for the month.
+              Hello {userName}, here&apos;s a quick look at your expenses for the month.
             </Text>
 
             <Section className="bg-[#fafafa] rounded-lg p-6 mb-6 border border-solid border-[#eaeaea]">
@@ -99,7 +98,7 @@ export const MonthlySummaryEmailTemplate = ({
               Lakhu Teleservices • Flowled App
             </Text>
             <Text className="text-[#666666] text-[12px] leading-[24px] text-center mt-1">
-              You're receiving this email because you opted into monthly summaries.
+              You&apos;re receiving this email because you opted into monthly summaries.
             </Text>
           </Container>
         </Body>

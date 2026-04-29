@@ -7,7 +7,7 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 interface MoneyMovementLogProps {
   movements: MoneyMovement[];
-  onAddMoneyIn: (source: string, amount: number, category: string, note?: string) => Promise<void>;
+  onAddMoneyIn: (source: string, amount: number, category: string, isRecurringRevenue?: boolean, note?: string) => Promise<void>;
   onAddMoneyOut: (recipient: string, amount: number, category: string, note?: string) => Promise<void>;
   startingBalance: number;
   hideForm?: boolean;
@@ -57,7 +57,7 @@ export function MoneyMovementLog({ movements, onAddMoneyIn, onAddMoneyOut, start
     setLoading(true);
     try {
       if (activeTab === "in") {
-        await onAddMoneyIn(source, parseFloat(amount), category, note);
+        await onAddMoneyIn(source, parseFloat(amount), category, false, note);
       } else {
         await onAddMoneyOut(source, parseFloat(amount), category, note);
       }

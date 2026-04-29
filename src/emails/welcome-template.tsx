@@ -7,7 +7,6 @@ import {
   Hr,
   Html,
   Img,
-  Link,
   Preview,
   Section,
   Text,
@@ -65,7 +64,7 @@ export const FlowledEmailTemplate = ({
             </Text>
 
             <Text className="text-gray-700 text-[15px] leading-[24px]">
-              We're thrilled to have you on board. Flowled is your dedicated ledger and financial tracking application, designed to give you complete clarity over your expenses and money movement.
+              We&apos;re thrilled to have you on board. Flowled is your dedicated ledger and financial tracking application, designed to give you complete clarity over your expenses and money movement.
             </Text>
 
             <Section className="text-center mt-[32px] mb-[32px]">
@@ -78,7 +77,7 @@ export const FlowledEmailTemplate = ({
             </Section>
 
             <Text className="text-gray-700 text-[15px] leading-[24px]">
-              Get started by adding your first expense or checking out your monthly summary. We're here to help you stay on top of your finances.
+              Get started by adding your first expense or checking out your monthly summary. We&apos;re here to help you stay on top of your finances.
             </Text>
 
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
