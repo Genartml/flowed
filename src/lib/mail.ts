@@ -1,4 +1,4 @@
-import { resend } from "./resend";
+import { getResend } from "./resend";
 import FlowledEmailTemplate from "@/emails/welcome-template";
 
 export async function sendWelcomeEmail(email: string, userName?: string) {
@@ -9,6 +9,7 @@ export async function sendWelcomeEmail(email: string, userName?: string) {
 
   console.log(`Attempting to send welcome email to: ${email}`);
   try {
+    const resend = getResend();
     const { data, error } = await resend.emails.send({
       from: 'Flowled <hello@flowwled.com>',
       to: [email],

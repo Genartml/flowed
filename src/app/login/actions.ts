@@ -37,8 +37,8 @@ export async function signup(formData: FormData) {
     redirect("/login?message=Could not create user");
   }
 
-  // Send welcome email (asynchronously, don't wait to redirect)
-  sendWelcomeEmail(data.email).catch(console.error);
+  // Send welcome email before redirect (redirect throws, killing any pending promises)
+  await sendWelcomeEmail(data.email).catch(console.error);
 
   revalidatePath("/", "layout");
   redirect("/onboarding");
