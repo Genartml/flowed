@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { sendWelcomeEmail } from "@/lib/mail";
 
 export async function login(formData: FormData) {
   const supabase = createClient();
@@ -35,6 +36,9 @@ export async function signup(formData: FormData) {
   if (error) {
     redirect("/login?message=Could not create user");
   }
+
+  // Send welcome email (asynchronously, don't wait to redirect)
+  sendWelcomeEmail(data.email).catch(console.error);
 
   revalidatePath("/", "layout");
   redirect("/onboarding");
