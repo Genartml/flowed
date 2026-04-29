@@ -64,9 +64,10 @@ export async function middleware(request: NextRequest) {
   const appRoutes = ["/dashboard", "/expenses", "/ledger", "/clients"];
   const isAppRoute = appRoutes.some((route) => pathname.startsWith(route));
   const isOnboarding = pathname.startsWith("/onboarding");
+  const isAdmin = pathname.startsWith("/admin");
 
   // Not logged in → redirect protected routes to login
-  if (!user && (isAppRoute || isOnboarding)) {
+  if (!user && (isAppRoute || isOnboarding || isAdmin)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -79,7 +80,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Logged in + trying to access app routes → check if onboarding is done
+  // Logged in + trying to access app routes (not admin) → check if onboarding is done
   if (user && isAppRoute) {
     const { data: config } = await supabase
       .from("config")
