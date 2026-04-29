@@ -9,11 +9,12 @@ import { EntitySwitcher } from "./entity-switcher";
 import { useCompanyConfig } from "@/hooks/useCompanyConfig";
 import { logout } from "@/app/login/actions";
 import { FounderProfileModal } from "./founder-profile-modal";
-import { LayoutDashboard, Receipt, LineChart, BookOpen, Menu, X, LogOut, UserCircle } from "lucide-react";
+import { LayoutDashboard, Receipt, LineChart, BookOpen, Menu, X, LogOut, UserCircle, Layers } from "lucide-react";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Expenses", href: "/expenses", icon: Receipt },
+  { name: "Subscriptions", href: "/subscriptions", icon: Layers },
   { name: "Revenue", href: "/clients", icon: LineChart },
   { name: "Ledger", href: "/ledger", icon: BookOpen },
 ];

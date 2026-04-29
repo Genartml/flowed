@@ -106,3 +106,50 @@ Give ONE sharp, actionable insight sentence (max 30 words) about the current fin
   const result = await model.generateContent(prompt);
   return result.response.text().trim();
 }
+
+export async function analyseSubscriptions(
+  subscriptions: Array<{ name: string; amount: number; category: string; billingCycle: string }>
+): Promise<Array<{ id: string; name: string; verdict: string; reasoning: string }>> {
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const subList = subscriptions
+    .map((s, i) => `[ID: sub_${i}] ${s.name}: ${s.amount} (${s.billingCycle}) - ${s.category}`)
+    .join("\n");
+
+  const prompt = `You are an aggressive "Zombie SaaS Killer" AI auditor for a startup.
+Your job is to identify redundant, unused, or overpriced subscriptions.
+
+Here is the list of active recurring subscriptions:
+${subList || "No subscriptions."}
+
+Instructions:
+1. Identify any clear overlaps (e.g. paying for Notion AND Asana AND Trello).
+2. Flag anything that is notoriously a "zombie" candidate (rarely used tools forgotten by teams).
+3. If a tool is essential and has no overlap, mark it as "Essential".
+4. If a tool overlaps with another, mark it as "Duplicate".
+5. If a tool seems unusually expensive for a typical startup, mark it as "Overpriced".
+6. If a tool is likely unused, mark it as "Zombie".
+
+Return ONLY a valid JSON array of objects, with no markdown, no code fences, matching this EXACT schema:
+[
+  {
+    "id": "sub_0",
+    "name": "<Tool Name>",
+    "verdict": "Zombie" | "Overpriced" | "Essential" | "Duplicate",
+    "reasoning": "<1 sentence sharp explanation why>"
+  }
+]`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+  
+  try {
+    const parsed = JSON.parse(cleaned);
+    // Map the pseudo-IDs back to actual random IDs for the UI
+    return parsed.map((p: Record<string, unknown>) => ({ ...p, id: Math.random().toString(36).substring(7) }));
+  } catch (error) {
+    console.error("Failed to parse Gemini SaaS response:", cleaned, error);
+    return [];
+  }
+}
