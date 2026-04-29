@@ -10,7 +10,7 @@ export async function sendWelcomeEmail(email: string, userName?: string) {
   console.log(`Attempting to send welcome email to: ${email}`);
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Flowled <onboarding@resend.dev>', // Update this to your verified domain once ready
+      from: 'Flowled <hello@flowwled.com>',
       to: [email],
       subject: 'Welcome to Flowled!',
       react: FlowledEmailTemplate({ userName }),
