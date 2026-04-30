@@ -15,6 +15,7 @@ import { CompanySettingsModal } from "@/components/company-settings-modal";
 import { WhatIfModal } from "@/components/what-if-modal";
 import { ProductTour } from "@/components/product-tour";
 import { FinancialCharts } from "@/components/financial-charts";
+import { FinancialRadar } from "@/components/financial-radar";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowDownLeft, ArrowUpRight, Settings2, Zap } from "lucide-react";
@@ -148,6 +149,9 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* Financial Health Radar */}
+        <FinancialRadar expenses={expenses} movements={movements} metrics={metrics} />
 
         {/* Financial Charts */}
         <FinancialCharts expenses={expenses} movements={movements} metrics={metrics} />
