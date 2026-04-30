@@ -8,13 +8,16 @@ import { CockpitBar, getCockpitMetrics } from "@/components/cockpit-bar";
 import { MoneyMovementLog } from "@/components/money-movement-log";
 import Papa from "papaparse";
 import { formatDate } from "@/lib/utils";
+import { CockpitBarSkeleton, TableSkeleton } from "@/components/skeletons";
 
 export default function LedgerPage() {
   const { entity } = useEntity();
-  const { monthlyBurn } = useExpenses(entity);
-  const { sharedConfig, entityConfig, updateTotalFunds, updateMonthlyIncome } =
+  const { monthlyBurn, loading: expensesLoading } = useExpenses(entity);
+  const { sharedConfig, entityConfig, updateTotalFunds, updateMonthlyIncome, loading: configLoading } =
     useCompanyConfig(entity);
-  const { movements, addMoneyIn, addMoneyOut } = useMoneyMovement(entity);
+  const { movements, addMoneyIn, addMoneyOut, loading: movementsLoading } = useMoneyMovement(entity);
+
+  const isLoading = expensesLoading || configLoading || movementsLoading;
 
   const metrics = getCockpitMetrics(
     sharedConfig.totalFunds,
@@ -50,14 +53,18 @@ export default function LedgerPage() {
 
   return (
     <div className="min-h-full h-screen flex flex-col page-fade-in">
-      <CockpitBar
-        totalFunds={metrics.totalFunds}
-        monthlyBurn={metrics.monthlyBurn}
-        monthlyIncome={metrics.monthlyIncome}
-        baselineOverhead={sharedConfig.baselineOverhead}
-        onUpdateFunds={updateTotalFunds}
-        onUpdateIncome={updateMonthlyIncome}
-      />
+      {isLoading ? (
+        <CockpitBarSkeleton />
+      ) : (
+        <CockpitBar
+          totalFunds={metrics.totalFunds}
+          monthlyBurn={metrics.monthlyBurn}
+          monthlyIncome={metrics.monthlyIncome}
+          baselineOverhead={sharedConfig.baselineOverhead}
+          onUpdateFunds={updateTotalFunds}
+          onUpdateIncome={updateMonthlyIncome}
+        />
+      )}
       
       <div className="p-4 md:p-8 max-w-[1200px] mx-auto w-full flex-1 flex flex-col space-y-6">
         <div className="flex justify-between items-end shrink-0">
@@ -74,18 +81,22 @@ export default function LedgerPage() {
         </div>
 
         <div className="flex-1 overflow-hidden min-h-[500px]">
-           <MoneyMovementLog 
-              movements={movements} 
-              onAddMoneyIn={async (source, amount, category, note) => {
-                updateTotalFunds(metrics.totalFunds + amount);
-                await addMoneyIn(source, amount, category, note);
-              }} 
-              onAddMoneyOut={async (source, amount, category, note) => {
-                updateTotalFunds(metrics.totalFunds - amount);
-                await addMoneyOut(source, amount, category, note);
-              }} 
-              startingBalance={sharedConfig.totalFunds} 
-           />
+           {isLoading ? (
+             <TableSkeleton />
+           ) : (
+             <MoneyMovementLog 
+                movements={movements} 
+                onAddMoneyIn={async (source, amount, category, note) => {
+                  updateTotalFunds(metrics.totalFunds + amount);
+                  await addMoneyIn(source, amount, category, note);
+                }} 
+                onAddMoneyOut={async (source, amount, category, note) => {
+                  updateTotalFunds(metrics.totalFunds - amount);
+                  await addMoneyOut(source, amount, category, note);
+                }} 
+                startingBalance={sharedConfig.totalFunds} 
+             />
+           )}
         </div>
       </div>
     </div>

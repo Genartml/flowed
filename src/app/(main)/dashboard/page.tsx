@@ -18,13 +18,16 @@ import { FinancialCharts } from "@/components/financial-charts";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowDownLeft, ArrowUpRight, Settings2, Zap } from "lucide-react";
+import { CockpitBarSkeleton, DashboardSkeleton } from "@/components/skeletons";
 
 export default function DashboardPage() {
   const { entity } = useEntity();
-  const { expenses, monthlyBurn, addExpense } = useExpenses(entity);
-  const { sharedConfig, entityConfig, updateTotalFunds, updateMonthlyIncome, updateCompanySettings, completeTour } =
+  const { expenses, monthlyBurn, addExpense, loading: expensesLoading } = useExpenses(entity);
+  const { sharedConfig, entityConfig, updateTotalFunds, updateMonthlyIncome, updateCompanySettings, completeTour, loading: configLoading } =
     useCompanyConfig(entity);
-  const { movements, addMoneyIn, addMoneyOut } = useMoneyMovement(entity);
+  const { movements, addMoneyIn, addMoneyOut, loading: movementsLoading } = useMoneyMovement(entity);
+
+  const isLoading = expensesLoading || configLoading || movementsLoading;
 
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [moneyInOpen, setMoneyInOpen] = useState(false);
@@ -44,23 +47,29 @@ export default function DashboardPage() {
   return (
     <div className="min-h-full pb-24 page-fade-in">
       {/* Product Tour */}
-      {showTour && (
+      {!isLoading && showTour && (
         <ProductTour onComplete={completeTour} />
       )}
 
       <div id="tour-cockpit">
-        <CockpitBar
-          totalFunds={metrics.totalFunds}
-          monthlyBurn={metrics.monthlyBurn}
-          monthlyIncome={metrics.monthlyIncome}
-          baselineOverhead={sharedConfig.baselineOverhead}
-          onUpdateFunds={updateTotalFunds}
-          onUpdateIncome={updateMonthlyIncome}
-        />
+        {isLoading ? (
+          <CockpitBarSkeleton />
+        ) : (
+          <CockpitBar
+            totalFunds={metrics.totalFunds}
+            monthlyBurn={metrics.monthlyBurn}
+            monthlyIncome={metrics.monthlyIncome}
+            baselineOverhead={sharedConfig.baselineOverhead}
+            onUpdateFunds={updateTotalFunds}
+            onUpdateIncome={updateMonthlyIncome}
+          />
+        )}
       </div>
-      
-      <div className="p-4 md:p-8 max-w-[1200px] mx-auto space-y-8">
-        
+
+      {isLoading ? (
+        <DashboardSkeleton />
+      ) : (
+        <div className="p-4 md:p-8 max-w-[1200px] mx-auto space-y-8">
         {/* Action Center */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <button
@@ -163,6 +172,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      )}
 
       <AddExpenseModal
         open={aiModalOpen}

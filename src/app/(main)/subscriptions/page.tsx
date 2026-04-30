@@ -5,6 +5,7 @@ import { useEntity } from "@/contexts/entity-context";
 import { useExpenses } from "@/hooks/useExpenses";
 import { Loader2, Zap, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { TableSkeleton } from "@/components/skeletons";
 
 interface AIRecommendation {
   id: string;
@@ -130,9 +131,7 @@ export default function SubscriptionsPage() {
       <div>
         <h2 className="text-xl font-bold uppercase tracking-tight mb-4 text-zinc-100">Active Subscriptions</h2>
         {expensesLoading ? (
-          <div className="flex justify-center p-12">
-            <Loader2 className="w-8 h-8 animate-spin text-zinc-600" />
-          </div>
+          <TableSkeleton />
         ) : subscriptions.length === 0 ? (
           <div className="text-center p-12 border border-dashed border-zinc-800 rounded-2xl bg-zinc-900/30">
             <p className="text-zinc-500 font-medium">No recurring subscriptions found.</p>

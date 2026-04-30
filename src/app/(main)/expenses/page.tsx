@@ -10,14 +10,17 @@ import { ExpenseTable } from "@/components/expense-table";
 import { AddExpenseModal } from "@/components/add-expense-modal";
 import Papa from "papaparse";
 import { formatDate } from "@/lib/utils";
+import { CockpitBarSkeleton, TableSkeleton } from "@/components/skeletons";
 
 export default function ExpensesPage() {
   const { entity } = useEntity();
-  const { expenses, monthlyBurn, addExpense, deleteExpense } = useExpenses(entity);
-  const { sharedConfig, entityConfig, updateTotalFunds, updateMonthlyIncome } =
+  const { expenses, monthlyBurn, addExpense, deleteExpense, loading: expensesLoading } = useExpenses(entity);
+  const { sharedConfig, entityConfig, updateTotalFunds, updateMonthlyIncome, loading: configLoading } =
     useCompanyConfig(entity);
   const { addMoneyOut } = useMoneyMovement(entity);
   const [modalOpen, setModalOpen] = useState(false);
+
+  const isLoading = expensesLoading || configLoading;
 
   const metrics = getCockpitMetrics(
     sharedConfig.totalFunds,
@@ -52,15 +55,19 @@ export default function ExpensesPage() {
   };
 
   return (
-    <div className="min-h-full pb-24">
-      <CockpitBar
-        totalFunds={metrics.totalFunds}
-        monthlyBurn={metrics.monthlyBurn}
-        monthlyIncome={metrics.monthlyIncome}
-        baselineOverhead={sharedConfig.baselineOverhead}
-        onUpdateFunds={updateTotalFunds}
-        onUpdateIncome={updateMonthlyIncome}
-      />
+    <div className="min-h-full pb-24 page-fade-in">
+      {isLoading ? (
+        <CockpitBarSkeleton />
+      ) : (
+        <CockpitBar
+          totalFunds={metrics.totalFunds}
+          monthlyBurn={metrics.monthlyBurn}
+          monthlyIncome={metrics.monthlyIncome}
+          baselineOverhead={sharedConfig.baselineOverhead}
+          onUpdateFunds={updateTotalFunds}
+          onUpdateIncome={updateMonthlyIncome}
+        />
+      )}
       
       <div className="p-4 md:p-8 max-w-[1200px] mx-auto space-y-6">
         <div className="flex justify-between items-end">
@@ -81,10 +88,14 @@ export default function ExpensesPage() {
             >
               + Add Expense
             </button>
-          </div>
+        </div>
         </div>
 
-        <ExpenseTable expenses={expenses} onDelete={deleteExpense} />
+        {isLoading ? (
+          <TableSkeleton />
+        ) : (
+          <ExpenseTable expenses={expenses} onDelete={deleteExpense} />
+        )}
       </div>
 
       <AddExpenseModal
