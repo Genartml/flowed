@@ -20,6 +20,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowDownLeft, ArrowUpRight, Settings2, Zap } from "lucide-react";
 import { CockpitBarSkeleton, DashboardSkeleton } from "@/components/skeletons";
+import { toast } from "sonner";
+import { formatCurrency } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { entity } = useEntity();
@@ -184,7 +186,13 @@ export default function DashboardPage() {
         onConfirm={async (data, analysis) => {
           await addExpense(data, analysis);
           await addMoneyOut(data.name, data.amount, data.category, data.reason);
-          updateTotalFunds(sharedConfig.totalFunds - data.amount);
+          const newBalance = sharedConfig.totalFunds - data.amount;
+          updateTotalFunds(newBalance);
+          if (newBalance < 0) {
+            toast.warning(`Balance is now negative (${formatCurrency(newBalance)}). Your funds have been overdrawn.`);
+          } else if (newBalance < metrics.monthlyBurn && metrics.monthlyBurn > 0) {
+            toast.warning(`Low funds alert — only ${formatCurrency(newBalance)} remaining. Less than 1 month of runway.`);
+          }
         }}
         metrics={metrics}
         companyPrompt={sharedConfig.companyPrompt}
@@ -202,7 +210,13 @@ export default function DashboardPage() {
         onClose={() => setManualExpenseOpen(false)}
         onConfirm={async (name, amount) => {
           await addMoneyOut(name, amount, "Expense");
-          updateTotalFunds(sharedConfig.totalFunds - amount);
+          const newBalance = sharedConfig.totalFunds - amount;
+          updateTotalFunds(newBalance);
+          if (newBalance < 0) {
+            toast.warning(`Balance is now negative (${formatCurrency(newBalance)}). Your funds have been overdrawn.`);
+          } else if (newBalance < metrics.monthlyBurn && metrics.monthlyBurn > 0) {
+            toast.warning(`Low funds alert — only ${formatCurrency(newBalance)} remaining. Less than 1 month of runway.`);
+          }
         }}
       />
       <CompanySettingsModal

@@ -7,8 +7,9 @@ import { useMoneyMovement } from "@/hooks/useMoneyMovement";
 import { CockpitBar, getCockpitMetrics } from "@/components/cockpit-bar";
 import { MoneyMovementLog } from "@/components/money-movement-log";
 import Papa from "papaparse";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatCurrency } from "@/lib/utils";
 import { CockpitBarSkeleton, TableSkeleton } from "@/components/skeletons";
+import { toast } from "sonner";
 
 export default function LedgerPage() {
   const { entity } = useEntity();
@@ -91,8 +92,14 @@ export default function LedgerPage() {
                   await addMoneyIn(source, amount, category, note);
                 }} 
                 onAddMoneyOut={async (source, amount, category, note) => {
-                  updateTotalFunds(metrics.totalFunds - amount);
+                  const newBalance = metrics.totalFunds - amount;
+                  updateTotalFunds(newBalance);
                   await addMoneyOut(source, amount, category, note);
+                  if (newBalance < 0) {
+                    toast.warning(`Balance is now negative (${formatCurrency(newBalance)}). Your funds have been overdrawn.`);
+                  } else if (newBalance < metrics.monthlyBurn && metrics.monthlyBurn > 0) {
+                    toast.warning(`Low funds alert — only ${formatCurrency(newBalance)} remaining. Less than 1 month of runway.`);
+                  }
                 }} 
                 startingBalance={sharedConfig.totalFunds} 
              />
