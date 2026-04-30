@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface MoneyInModalProps {
   open: boolean;
@@ -28,12 +29,14 @@ export function MoneyInModal({ open, onClose, onConfirm }: MoneyInModalProps) {
 
     try {
       await onConfirm(name, parseFloat(amount), isRecurringRevenue);
+      toast.success("Income logged successfully");
       setName("");
       setAmount("");
       setIsRecurringRevenue(false);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to log income");
+      setError(err instanceof Error ? err.message : "Failed to log money in");
+      toast.error("Failed to log money in");
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, UserCircle, Check, Camera, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface FounderProfileModalProps {
   open: boolean;
@@ -88,15 +89,22 @@ export function FounderProfileModal({
 
   const handleSave = async () => {
     setSaving(true);
-    await onSave({
-      founderName: name,
-      founderRole: role,
-      founderBio: bio,
-      founderAvatar: avatarUrl,
-    });
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => onClose(), 800);
+    try {
+      await onSave({
+        founderName: name,
+        founderRole: role,
+        founderBio: bio,
+        founderAvatar: avatarUrl,
+      });
+      toast.success("Profile saved successfully");
+      setSaved(true);
+      setTimeout(() => onClose(), 800);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save profile");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!open) return null;

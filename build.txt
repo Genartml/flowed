@@ -1,0 +1,29 @@
+
+> flowled-app@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./src/app/(main)/investor-update/page.tsx
+97:14  Error: 'Loader2' is not defined.  react/jsx-no-undef
+99:14  Error: 'Megaphone' is not defined.  react/jsx-no-undef
+107:12  Error: 'AlertCircle' is not defined.  react/jsx-no-undef
+122:20  Error: 'CheckCircle2' is not defined.  react/jsx-no-undef
+127:20  Error: 'Copy' is not defined.  react/jsx-no-undef
+142:14  Error: 'Megaphone' is not defined.  react/jsx-no-undef
+
+./src/app/admin/page.tsx
+137:40  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/onboarding/page.tsx
+113:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+311:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules

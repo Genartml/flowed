@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
@@ -140,6 +141,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} bg-neutral-100 text-black min-h-screen`}>
         {children}
+        <Toaster theme="dark" position="bottom-right" />
       </body>
     </html>
   );

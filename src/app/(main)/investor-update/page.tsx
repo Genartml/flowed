@@ -6,7 +6,8 @@ import { useExpenses } from "@/hooks/useExpenses";
 import { useCompanyConfig } from "@/hooks/useCompanyConfig";
 import { useClients } from "@/hooks/useClients";
 import { getCockpitMetrics } from "@/components/cockpit-bar";
-import { Loader2, Megaphone, Copy, CheckCircle2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { Loader2, Megaphone, Copy, CheckCircle2 } from "lucide-react";
 
 export default function InvestorUpdatePage() {
   const { entity } = useEntity();
@@ -16,7 +17,6 @@ export default function InvestorUpdatePage() {
   
   const [generating, setGenerating] = useState(false);
   const [draft, setDraft] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const metrics = getCockpitMetrics(
@@ -28,7 +28,6 @@ export default function InvestorUpdatePage() {
 
   const handleGenerate = async () => {
     setGenerating(true);
-    setError(null);
     setCopied(false);
 
     try {
@@ -61,9 +60,10 @@ export default function InvestorUpdatePage() {
 
       const data = await response.json();
       setDraft(data.draft);
+      toast.success("Investor update drafted successfully");
     } catch (err) {
       console.error(err);
-      setError("Failed to generate the investor update. Please try again.");
+      toast.error("Failed to generate the investor update. Please try again.");
     } finally {
       setGenerating(false);
     }
@@ -74,9 +74,11 @@ export default function InvestorUpdatePage() {
     try {
       await navigator.clipboard.writeText(draft);
       setCopied(true);
+      toast.success("Copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
+      toast.error("Failed to copy to clipboard");
     }
   };
 
@@ -101,12 +103,6 @@ export default function InvestorUpdatePage() {
         </button>
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20 text-sm font-medium flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" />
-          {error}
-        </div>
-      )}
 
       {draft ? (
         <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">

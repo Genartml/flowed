@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, X, Settings2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface CompanySettingsModalProps {
   open: boolean;
@@ -51,9 +52,11 @@ export function CompanySettingsModal({
         companyPrompt: prompt,
         baselineOverhead: parseFloat(overhead) || 0,
       });
+      toast.success("Settings saved successfully");
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save settings");
+      toast.error("Failed to save settings");
     } finally {
       setLoading(false);
     }

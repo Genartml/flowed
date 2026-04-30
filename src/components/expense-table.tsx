@@ -6,6 +6,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { LabelPill } from "./label-pill";
 import { VerdictPill } from "./verdict-pill";
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ExpenseTableProps {
   expenses: Expense[];
@@ -209,6 +210,7 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                             onClick={(e) => {
                               e.stopPropagation();
                               onDelete(expense.id);
+                              toast.success("Expense removed successfully");
                               setDeleteConfirmId(null);
                             }}
                             className="text-xs bg-red-600 text-white px-3 py-1.5 rounded-md font-bold hover:bg-red-700 transition-colors"

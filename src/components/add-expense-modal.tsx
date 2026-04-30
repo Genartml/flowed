@@ -10,6 +10,7 @@ import type { ExpenseFormData, FlowwledAnalysis, CockpitMetrics } from "@/lib/ty
 import { LabelPill } from "./label-pill";
 import { VerdictPill } from "./verdict-pill";
 import { Loader2, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface AddExpenseModalProps {
   open: boolean;
@@ -101,6 +102,7 @@ export function AddExpenseModal({
   const handleConfirm = () => {
     if (analysis) {
       onConfirm(formData, analysis);
+      toast.success("Expense logged successfully");
       resetForm();
       onClose();
     }

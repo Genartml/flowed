@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface ManualExpenseModalProps {
   open: boolean;
@@ -27,11 +28,13 @@ export function ManualExpenseModal({ open, onClose, onConfirm }: ManualExpenseMo
 
     try {
       await onConfirm(name, parseFloat(amount));
+      toast.success("Expense logged successfully");
       setName("");
       setAmount("");
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to log expense");
+      toast.error("Failed to log expense");
     } finally {
       setLoading(false);
     }

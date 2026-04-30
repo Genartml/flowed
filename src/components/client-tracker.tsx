@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import type { Client, IncomeSource } from "@/lib/types";
 import { useEntity } from "@/contexts/entity-context";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ClientTrackerProps {
   clients: Client[];
@@ -50,11 +51,29 @@ export function ClientTracker({
       } else {
         await onAddIncomeSource(name, parseFloat(amount), type);
       }
+      toast.success(entity === "primary" ? "Client added successfully" : "Income source added successfully");
       setName("");
       setAmount("");
       setType("sponsorship");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add item");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      if (entity === "primary") {
+        await onDeleteClient(id);
+      } else {
+        await onDeleteIncomeSource(id);
+      }
+      toast.success(entity === "primary" ? "Client removed successfully" : "Income source removed successfully");
+    } catch (err) {
+      console.error("Error deleting item:", err);
+      toast.error("Failed to remove item");
     }
   };
 
@@ -174,7 +193,7 @@ export function ClientTracker({
                           <td className="px-5 py-4 text-zinc-500 text-xs whitespace-nowrap">{formatDate(client.createdAt)}</td>
                           <td className="px-5 py-4 text-center whitespace-nowrap">
                             <button
-                              onClick={() => onDeleteClient(client.id)}
+                              onClick={() => handleDelete(client.id)}
                               className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors inline-flex items-center justify-center"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -200,7 +219,7 @@ export function ClientTracker({
                         <td className="px-5 py-4 text-zinc-500 text-xs whitespace-nowrap">{formatDate(source.createdAt)}</td>
                         <td className="px-5 py-4 text-center whitespace-nowrap">
                           <button
-                            onClick={() => onDeleteIncomeSource(source.id)}
+                            onClick={() => handleDelete(source.id)}
                             className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors inline-flex items-center justify-center"
                           >
                             <Trash2 className="w-4 h-4" />
