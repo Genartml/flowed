@@ -23,15 +23,21 @@ export function MoneyMovementLog({ movements, onAddMoneyIn, onAddMoneyOut, start
   const [filter, setFilter] = useState<"All" | "This Month" | "This Week">("All");
 
   const sortedMovements = useMemo(() => {
-    // Sort oldest to newest to calculate running balance
-    const sorted = [...movements].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-    let current = startingBalance;
+    // Sort newest first for display
+    const newestFirst = [...movements].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     
-    return sorted.map(m => {
-      if (m.type === "in") current += m.amount;
-      else current -= m.amount;
-      return { ...m, runningBalance: current };
-    }).reverse(); // Reverse for display (newest first)
+    // The startingBalance IS the current total funds (after all transactions).
+    // Walk backwards from most recent to oldest, reversing each transaction to get historical balances.
+    let balance = startingBalance;
+    const withBalance = newestFirst.map(m => {
+      const currentBalance = balance;
+      // Reverse the transaction to get the balance BEFORE this entry
+      if (m.type === "in") balance -= m.amount;
+      else balance += m.amount;
+      return { ...m, runningBalance: currentBalance };
+    });
+    
+    return withBalance;
   }, [movements, startingBalance]);
 
   const filteredMovements = useMemo(() => {

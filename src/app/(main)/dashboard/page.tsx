@@ -183,6 +183,7 @@ export default function DashboardPage() {
         onClose={() => setAiModalOpen(false)}
         onConfirm={async (data, analysis) => {
           await addExpense(data, analysis);
+          await addMoneyOut(data.name, data.amount, data.category, data.reason);
           updateTotalFunds(sharedConfig.totalFunds - data.amount);
         }}
         metrics={metrics}
