@@ -167,20 +167,27 @@ export default function DashboardPage() {
       <AddExpenseModal
         open={aiModalOpen}
         onClose={() => setAiModalOpen(false)}
-        onConfirm={addExpense}
+        onConfirm={async (data, analysis) => {
+          await addExpense(data, analysis);
+          updateTotalFunds(sharedConfig.totalFunds - data.amount);
+        }}
         metrics={metrics}
         companyPrompt={sharedConfig.companyPrompt}
       />
       <MoneyInModal
         open={moneyInOpen}
         onClose={() => setMoneyInOpen(false)}
-        onConfirm={async (name, amount, isRecurringRevenue) => addMoneyIn(name, amount, "Revenue", isRecurringRevenue)}
+        onConfirm={async (name, amount, isRecurringRevenue) => {
+          await addMoneyIn(name, amount, "Revenue", isRecurringRevenue);
+          updateTotalFunds(sharedConfig.totalFunds + amount);
+        }}
       />
       <ManualExpenseModal
         open={manualExpenseOpen}
         onClose={() => setManualExpenseOpen(false)}
         onConfirm={async (name, amount) => {
-          addMoneyOut(name, amount, "Expense");
+          await addMoneyOut(name, amount, "Expense");
+          updateTotalFunds(sharedConfig.totalFunds - amount);
         }}
       />
       <CompanySettingsModal
