@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { Send, User, BrainCircuit, Loader2 } from "lucide-react";
 import type { CfoChatMessage, CockpitMetrics, Entity } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -15,52 +16,85 @@ interface CfoChatWindowProps {
 
 export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: CfoChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Map our DB format to the ai/react format
-  const formattedInitialMessages = (initialHistory || []).map((m) => ({
-    id: m.id,
-    role: m.role as "user" | "assistant" | "system" | "data",
-    content: m.content,
-  }));
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const chatOptions = useMemo(() => ({
-    api: "/api/cfo-chat",
-    initialMessages: formattedInitialMessages,
-    body: {
-      threadId,
-      entity,
-      metrics,
-    },
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [threadId]);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const chat = useChat(chatOptions as any);
-  
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { messages = [], append, sendMessage, isLoading = false } = (chat as any) || {};
-
   const [localInput, setLocalInput] = useState("");
+
+  // Map our DB format to the ai/react UIMessage format
+  const formattedInitialMessages = useMemo(
+    () =>
+      (initialHistory || []).map((m) => ({
+        id: m.id,
+        role: m.role as "user" | "assistant",
+        content: m.content,
+        parts: [{ type: "text" as const, text: m.content }],
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [threadId]
+  );
+
+  // Create a stable transport that points to our custom API endpoint
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/cfo-chat",
+        body: {
+          threadId,
+          entity,
+          metrics,
+        },
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [threadId]
+  );
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const chatResult = useChat({
+    transport,
+    messages: formattedInitialMessages,
+  } as any);
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const chatAny = chatResult as any;
+  const messages = useMemo(() => chatAny?.messages || [], [chatAny?.messages]);
+  const sendMessage = chatAny?.sendMessage;
+  const status = chatAny?.status || "ready";
+  const isLoading = status === "submitted" || status === "streaming";
 
   const onLocalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!localInput.trim()) return;
-    const send = append || sendMessage;
-    if (send) {
-      send({ role: "user", content: localInput });
+    if (!localInput.trim() || isLoading) return;
+    if (sendMessage) {
+      sendMessage({ text: localInput });
       setLocalInput("");
     } else {
-      console.error("Neither append nor sendMessage is available on chat object");
+      console.error("sendMessage is not available on chat object. Keys:", Object.keys(chatAny || {}));
     }
   };
 
   // Auto-scroll to bottom when new messages arrive
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  // Extract text content from a message (v6 uses parts array)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getMessageText = (m: any): string => {
+    // v6 UIMessage format: parts is an array of { type, text }
+    if (m.parts && Array.isArray(m.parts)) {
+      return m.parts
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((p: any) => p.type === "text")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((p: any) => p.text)
+        .join("");
+    }
+    // Fallback to content string (for our initial messages)
+    if (typeof m.content === "string") return m.content;
+    return "";
+  };
 
   return (
     <div className="flex flex-col h-full bg-zinc-950 rounded-2xl border border-zinc-800 overflow-hidden shadow-sm relative">
@@ -92,7 +126,7 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
           </div>
         ) : (
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (messages || []).map((m: any) => (
+          messages.map((m: any) => (
             <div
               key={m.id}
               className={cn(
@@ -120,16 +154,15 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
                     : "bg-zinc-900 border border-zinc-800 text-zinc-300"
                 )}
               >
-                {/* A simple way to render basic markdown/newlines without importing react-markdown */}
                 <div className="whitespace-pre-wrap font-medium">
-                  {m.content}
+                  {getMessageText(m)}
                 </div>
               </div>
             </div>
           ))
         )}
         
-        {isLoading && messages[messages.length - 1]?.role === "user" && (
+        {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === "user" && (
            <div className="flex gap-4 max-w-[85%] mr-auto animate-in fade-in slide-in-from-bottom-2 duration-300">
              <div className="shrink-0 mt-0.5">
                 <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_0_15px_-3px_rgba(16,185,129,0.4)]">

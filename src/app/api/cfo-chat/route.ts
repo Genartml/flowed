@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "@ai-sdk/google";
-import { streamText } from "ai";
+import { streamText, convertToModelMessages } from "ai";
 import { createClient } from "@/utils/supabase/server";
 
 // Allow streaming responses up to 30 seconds
@@ -23,11 +23,24 @@ export async function POST(req: NextRequest) {
 
     // Save the incoming user message to Supabase
     const lastMessage = messages[messages.length - 1];
+    // In v6 SDK, message text is in parts array: [{ type: "text", text: "..." }]
+    // Fallback to content for backwards compatibility
+    const getTextContent = (msg: Record<string, unknown>): string => {
+      if (Array.isArray(msg.parts)) {
+        return msg.parts
+          .filter((p: Record<string, unknown>) => p.type === "text")
+          .map((p: Record<string, unknown>) => p.text)
+          .join("");
+      }
+      return (msg.content as string) || "";
+    };
+
     if (lastMessage.role === "user") {
+      const userText = getTextContent(lastMessage);
       const { error: insertError } = await supabase.from("cfo_chat_messages").insert({
         thread_id: threadId,
         role: "user",
-        content: lastMessage.content,
+        content: userText,
       });
       if (insertError) {
         console.error("Failed to save user message:", insertError);
@@ -58,7 +71,7 @@ RULES OF ENGAGEMENT:
     const result = await streamText({
       model: google("gemini-1.5-flash-latest"), // Using the robust 1.5 flash model
       system: systemPrompt,
-      messages,
+      messages: await convertToModelMessages(messages),
       async onFinish({ text }) {
         // Save the AI's final response to Supabase
         const { error: aiInsertError } = await supabase.from("cfo_chat_messages").insert({
@@ -80,7 +93,7 @@ RULES OF ENGAGEMENT:
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (result as any).toDataStreamResponse();
+    return (result as any).toUIMessageStreamResponse();
   } catch (error) {
     console.error("CFO Chat error:", error);
     return NextResponse.json(
