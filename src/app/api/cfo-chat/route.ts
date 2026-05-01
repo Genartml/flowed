@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { google } from "@ai-sdk/google";
-import { streamText, convertToModelMessages } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { streamText } from "ai";
 import { createClient } from "@/utils/supabase/server";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
+
+// Initialize the Google AI provider with the existing GEMINI_API_KEY
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY || "",
+});
 
 export async function POST(req: NextRequest) {
   const supabase = createClient();
@@ -66,12 +71,28 @@ RULES OF ENGAGEMENT:
 3. Do NOT give generic financial advice. Always anchor your advice in THEIR numbers.
 4. If a decision significantly reduces runway (e.g. below 6 months), you must raise a red flag.
 5. Use clear Markdown formatting (bullet points, bold text for numbers, headers if needed).`;
+    // Manually convert UIMessages to the simple format streamText expects
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const modelMessages = messages.map((msg: any) => {
+      let textContent = "";
+      if (Array.isArray(msg.parts)) {
+        textContent = msg.parts
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((p: any) => p.type === "text")
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((p: any) => p.text)
+          .join("");
+      } else if (typeof msg.content === "string") {
+        textContent = msg.content;
+      }
+      return { role: msg.role as "user" | "assistant", content: textContent };
+    });
 
     // Stream the text response from Google Gemini
     const result = await streamText({
-      model: google("gemini-1.5-flash-latest"), // Using the robust 1.5 flash model
+      model: google("gemini-1.5-flash-latest"),
       system: systemPrompt,
-      messages: await convertToModelMessages(messages),
+      messages: modelMessages,
       async onFinish({ text }) {
         // Save the AI's final response to Supabase
         const { error: aiInsertError } = await supabase.from("cfo_chat_messages").insert({
