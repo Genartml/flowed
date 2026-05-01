@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Send, User, BrainCircuit, Loader2 } from "lucide-react";
 import type { CfoChatMessage, CockpitMetrics, Entity } from "@/lib/types";
@@ -24,7 +24,7 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const chatOptions: any = {
+  const chatOptions = useMemo(() => ({
     api: "/api/cfo-chat",
     initialMessages: formattedInitialMessages,
     body: {
@@ -32,11 +32,28 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
       entity,
       metrics,
     },
-  };
-  const chat = useChat(chatOptions);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [threadId]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const chat = useChat(chatOptions as any);
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { messages = [], input = "", handleInputChange, handleSubmit, isLoading = false } = (chat as any) || {};
+  const { messages = [], append, sendMessage, isLoading = false } = (chat as any) || {};
+
+  const [localInput, setLocalInput] = useState("");
+
+  const onLocalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!localInput.trim()) return;
+    const send = append || sendMessage;
+    if (send) {
+      send({ role: "user", content: localInput });
+      setLocalInput("");
+    } else {
+      console.error("Neither append nor sendMessage is available on chat object");
+    }
+  };
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -131,19 +148,19 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
       {/* Input Area */}
       <div className="p-4 bg-zinc-900 border-t border-zinc-800 shrink-0">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={onLocalSubmit}
           className="relative max-w-4xl mx-auto flex items-center"
         >
           <input
-            value={input}
-            onChange={handleInputChange}
+            value={localInput}
+            onChange={(e) => setLocalInput(e.target.value)}
             placeholder="Ask your CFO about your finances..."
             className="w-full bg-zinc-950 border border-zinc-700 rounded-xl py-3.5 pl-4 pr-12 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors shadow-sm"
             disabled={isLoading}
           />
           <button
             type="submit"
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || !localInput.trim()}
             className="absolute right-2 p-2 rounded-lg bg-emerald-500 text-zinc-950 hover:bg-emerald-400 disabled:opacity-50 disabled:bg-zinc-800 disabled:text-zinc-500 transition-all"
           >
             {isLoading ? (
