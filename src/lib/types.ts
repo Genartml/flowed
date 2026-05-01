@@ -128,3 +128,20 @@ export const MONEY_IN_TYPES = [
   "Affiliate",
   "Other",
 ] as const;
+
+export interface CfoChatThread {
+  id: string;
+  user_id: string;
+  entity: Entity;
+  title: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface CfoChatMessage {
+  id: string;
+  thread_id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  created_at: Date;
+}
