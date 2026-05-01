@@ -95,7 +95,7 @@ export function useCfoChatHistory(entity: Entity) {
 
       if (error) throw error;
 
-      return data.map(d => ({
+      return (data || []).map(d => ({
         ...d,
         created_at: new Date(d.created_at),
       }));

@@ -17,7 +17,7 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Map our DB format to the ai/react format
-  const formattedInitialMessages = initialHistory.map((m) => ({
+  const formattedInitialMessages = (initialHistory || []).map((m) => ({
     id: m.id,
     role: m.role as "user" | "assistant" | "system" | "data",
     content: m.content,
@@ -36,7 +36,7 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
   const chat = useChat(chatOptions);
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = chat as any;
+  const { messages = [], input = "", handleInputChange, handleSubmit, isLoading = false } = (chat as any) || {};
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -75,7 +75,7 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
           </div>
         ) : (
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          messages.map((m: any) => (
+          (messages || []).map((m: any) => (
             <div
               key={m.id}
               className={cn(
