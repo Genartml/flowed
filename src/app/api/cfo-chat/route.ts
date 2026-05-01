@@ -114,7 +114,7 @@ RULES OF ENGAGEMENT:
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (result as any).toUIMessageStreamResponse();
+    return (result as any).toDataStreamResponse();
   } catch (error) {
     console.error("CFO Chat error:", error);
     return NextResponse.json(
