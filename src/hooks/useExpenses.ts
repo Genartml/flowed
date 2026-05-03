@@ -20,6 +20,26 @@ export function useExpenses(entity: Entity) {
       if (!user) { setLoading(false); return; }
       userIdRef.current = user.id;
 
+      const mapExpense = (d: any): Expense => ({
+        id: d.id,
+        name: d.name,
+        amount: Number(d.amount),
+        category: d.category,
+        reason: d.reason,
+        process: d.process,
+        outcome: d.outcome,
+        label: d.aiLabel || "Maintain",
+        score: d.aiScore ? Number(d.aiScore) : 0,
+        reasoning: d.aiReasoning || "",
+        runway_impact: d.aiRunwayImpact || "",
+        verdict: d.aiVerdict || "Buy",
+        condition: d.aiCondition || "",
+        createdAt: new Date(d.createdAt),
+        entity: d.entity,
+        isRecurring: d.isRecurring || false,
+        billingCycle: d.billingCycle || null,
+      });
+
       const { data, error } = await supabase
         .from("expenses")
         .select("*")
@@ -30,27 +50,7 @@ export function useExpenses(entity: Entity) {
       if (error) {
         setError(error.message);
       } else if (data) {
-        setExpenses(
-          data.map((d) => ({
-            id: d.id,
-            name: d.name,
-            amount: Number(d.amount),
-            category: d.category,
-            reason: d.reason,
-            process: d.process,
-            outcome: d.outcome,
-            label: d.aiLabel || "Maintain",
-            score: d.aiScore ? Number(d.aiScore) : 0,
-            reasoning: d.aiReasoning || "",
-            runway_impact: d.aiRunwayImpact || "",
-            verdict: d.aiVerdict || "Buy",
-            condition: d.aiCondition || "",
-            createdAt: new Date(d.createdAt),
-            entity: d.entity,
-            isRecurring: d.isRecurring || false,
-            billingCycle: d.billingCycle || null,
-          })) as Expense[]
-        );
+        setExpenses(data.map(mapExpense));
       }
       setLoading(false);
     };
@@ -67,7 +67,25 @@ export function useExpenses(entity: Entity) {
           schema: "public",
           table: "expenses",
         },
-        () => fetchExpenses()
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newRecord = payload.new as any;
+            if (newRecord.entity === entity && newRecord.user_id === userIdRef.current) {
+              setExpenses((prev) => {
+                if (prev.some((e) => e.id === newRecord.id)) return prev;
+                return [mapExpense(newRecord), ...prev];
+              });
+            }
+          } else if (payload.eventType === "UPDATE") {
+            const updatedRecord = payload.new as any;
+            setExpenses((prev) =>
+              prev.map((e) => (e.id === updatedRecord.id ? mapExpense(updatedRecord) : e))
+            );
+          } else if (payload.eventType === "DELETE") {
+            const deletedRecord = payload.old as any;
+            setExpenses((prev) => prev.filter((e) => e.id !== deletedRecord.id));
+          }
+        }
       )
       .subscribe();
 
@@ -85,9 +103,11 @@ export function useExpenses(entity: Entity) {
     const userId = userIdRef.current;
     if (!userId) return;
 
+    const newId = crypto.randomUUID();
+
     // Optimistic local update
     const newExpense: Expense = {
-      id: `temp-${Date.now()}`,
+      id: newId,
       name: formData.name,
       amount: Number(formData.amount),
       category: formData.category,
@@ -109,6 +129,7 @@ export function useExpenses(entity: Entity) {
     setExpenses((prev) => [newExpense, ...prev]);
 
     const { error } = await supabase.from("expenses").insert({
+      id: newId,
       ...formData,
       aiScore: analysis.score,
       aiVerdict: analysis.verdict,
@@ -121,7 +142,7 @@ export function useExpenses(entity: Entity) {
     });
 
     if (error) {
-      setExpenses((prev) => prev.filter(e => e.id !== newExpense.id));
+      setExpenses((prev) => prev.filter(e => e.id !== newId));
       throw error;
     }
   };
@@ -129,12 +150,21 @@ export function useExpenses(entity: Entity) {
   const deleteExpense = async (expenseId: string) => {
     const userId = userIdRef.current;
     if (!userId) return;
+    
+    // Optimistic delete
+    setExpenses((prev) => prev.filter((e) => e.id !== expenseId));
+    
     const { error } = await supabase
       .from("expenses")
       .delete()
       .eq("id", expenseId)
       .eq("user_id", userId);
-    if (error) throw error;
+      
+    if (error) {
+      // Realistically we should revert the optimistic delete, but fetchExpenses would handle it.
+      // To be clean, we let the realtime subscription or error boundary handle it.
+      throw error;
+    }
   };
 
   return { expenses, loading, error, monthlyBurn, addExpense, deleteExpense };

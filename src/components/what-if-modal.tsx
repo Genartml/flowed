@@ -67,6 +67,11 @@ export function WhatIfModal({ open, onClose, metrics, companyPrompt }: WhatIfMod
   };
 
   const handleClose = () => {
+    if (scenario.trim() && !result) {
+      if (!window.confirm("Are you sure you want to discard this scenario?")) {
+        return;
+      }
+    }
     setScenario("");
     setResult(null);
     setError("");

@@ -87,9 +87,9 @@ export default function LedgerPage() {
            ) : (
              <MoneyMovementLog 
                 movements={movements} 
-                onAddMoneyIn={async (source, amount, category, note) => {
+                onAddMoneyIn={async (source, amount, category, isRecurringRevenue, note) => {
                   updateTotalFunds(metrics.totalFunds + amount);
-                  await addMoneyIn(source, amount, category, note);
+                  await addMoneyIn(source, amount, category, isRecurringRevenue, note);
                 }} 
                 onAddMoneyOut={async (source, amount, category, note) => {
                   const newBalance = metrics.totalFunds - amount;
@@ -98,10 +98,11 @@ export default function LedgerPage() {
                   if (newBalance < 0) {
                     toast.warning(`Balance is now negative (${formatCurrency(newBalance)}). Your funds have been overdrawn.`);
                   } else if (newBalance < metrics.monthlyBurn && metrics.monthlyBurn > 0) {
-                    toast.warning(`Low funds alert — only ${formatCurrency(newBalance)} remaining. Less than 1 month of runway.`);
+                    toast.warning(`Runway Alert: You have less than 1 month of runway left (${formatCurrency(newBalance)} remaining).`);
                   }
-                }} 
-                startingBalance={sharedConfig.totalFunds} 
+                }}
+                onUpdateMovement={updateMovement}
+                startingBalance={metrics.totalFunds} 
              />
            )}
         </div>

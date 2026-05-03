@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Send, User, BrainCircuit, Loader2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { CfoChatMessage, CockpitMetrics, Entity } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -146,18 +148,22 @@ export function CfoChatWindow({ threadId, initialHistory, metrics, entity }: Cfo
                 )}
               </div>
               
-              <div
-                className={cn(
-                  "px-4 py-3 rounded-2xl text-[15px] leading-relaxed shadow-sm",
-                  m.role === "user"
-                    ? "bg-zinc-800 text-zinc-100 border border-zinc-700"
-                    : "bg-zinc-900 border border-zinc-800 text-zinc-300"
-                )}
-              >
-                <div className="whitespace-pre-wrap font-medium">
-                  {getMessageText(m)}
+                <div
+                  className={cn(
+                    "px-4 py-3 rounded-2xl text-[15px] leading-relaxed shadow-sm",
+                    m.role === "user"
+                      ? "bg-zinc-800 text-zinc-100 border border-zinc-700 font-medium whitespace-pre-wrap"
+                      : "bg-zinc-900 border border-zinc-800 text-zinc-300 prose prose-invert prose-emerald max-w-none prose-p:leading-relaxed prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800"
+                  )}
+                >
+                  {m.role === "user" ? (
+                    getMessageText(m)
+                  ) : (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {getMessageText(m)}
+                    </ReactMarkdown>
+                  )}
                 </div>
-              </div>
             </div>
           ))
         )}

@@ -171,6 +171,7 @@ export default function DashboardPage() {
                 movements={movements}
                 onAddMoneyIn={addMoneyIn}
                 onAddMoneyOut={addMoneyOut}
+                onUpdateMovement={updateMovement}
                 startingBalance={sharedConfig.totalFunds}
                 hideForm
               />

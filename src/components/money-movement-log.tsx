@@ -3,17 +3,19 @@
 import { useState, useMemo } from "react";
 import type { MoneyMovement } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Pencil } from "lucide-react";
+import { EditMovementModal } from "./edit-movement-modal";
 
 interface MoneyMovementLogProps {
   movements: MoneyMovement[];
   onAddMoneyIn: (source: string, amount: number, category: string, isRecurringRevenue?: boolean, note?: string) => Promise<void>;
   onAddMoneyOut: (recipient: string, amount: number, category: string, note?: string) => Promise<void>;
+  onUpdateMovement?: (id: string, data: Partial<Pick<MoneyMovement, "source" | "amount" | "category" | "note">>) => Promise<void>;
   startingBalance: number;
   hideForm?: boolean;
 }
 
-export function MoneyMovementLog({ movements, onAddMoneyIn, onAddMoneyOut, startingBalance, hideForm }: MoneyMovementLogProps) {
+export function MoneyMovementLog({ movements, onAddMoneyIn, onAddMoneyOut, onUpdateMovement, startingBalance, hideForm }: MoneyMovementLogProps) {
   const [activeTab, setActiveTab] = useState<"in" | "out">("in");
   const [source, setSource] = useState("");
   const [amount, setAmount] = useState("");
@@ -21,6 +23,8 @@ export function MoneyMovementLog({ movements, onAddMoneyIn, onAddMoneyOut, start
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"All" | "This Month" | "This Week">("All");
+
+  const [editMovement, setEditMovement] = useState<MoneyMovement | null>(null);
 
   const sortedMovements = useMemo(() => {
     // Sort newest first for display
@@ -196,12 +200,13 @@ export function MoneyMovementLog({ movements, onAddMoneyIn, onAddMoneyOut, start
                  <th className="px-6 py-4 font-bold uppercase text-xs tracking-wider text-zinc-500 whitespace-nowrap text-right">In</th>
                  <th className="px-6 py-4 font-bold uppercase text-xs tracking-wider text-zinc-500 whitespace-nowrap text-right">Out</th>
                  <th className="px-6 py-4 font-bold uppercase text-xs tracking-wider text-zinc-500 whitespace-nowrap text-right">Balance</th>
+                 <th className="px-6 py-4 font-bold uppercase text-xs tracking-wider text-zinc-500 whitespace-nowrap text-right">Actions</th>
                </tr>
              </thead>
              <tbody className="divide-y divide-zinc-800">
                {filteredMovements.length === 0 && (
                  <tr>
-                   <td colSpan={5} className="px-6 py-16 text-center text-sm text-zinc-500 font-medium">
+                   <td colSpan={6} className="px-6 py-16 text-center text-sm text-zinc-500 font-medium">
                      No movements recorded yet.
                    </td>
                  </tr>
@@ -227,12 +232,32 @@ export function MoneyMovementLog({ movements, onAddMoneyIn, onAddMoneyOut, start
                    <td className="px-6 py-4 text-right tabular-nums font-black text-zinc-100 whitespace-nowrap">
                      {formatCurrency(m.runningBalance)}
                    </td>
+                   <td className="px-6 py-4 text-right whitespace-nowrap">
+                     {onUpdateMovement && (
+                       <button
+                         onClick={() => setEditMovement(m)}
+                         className="p-1.5 rounded-md text-zinc-500 hover:text-blue-400 hover:bg-zinc-800 transition-colors"
+                         title="Edit"
+                       >
+                         <Pencil className="w-4 h-4" />
+                       </button>
+                     )}
+                   </td>
                  </tr>
                ))}
              </tbody>
           </table>
         </div>
       </div>
+
+      <EditMovementModal
+        open={!!editMovement}
+        onClose={() => setEditMovement(null)}
+        movement={editMovement}
+        onSave={async (id, data) => {
+          if (onUpdateMovement) await onUpdateMovement(id, data);
+        }}
+      />
     </div>
   );
 }

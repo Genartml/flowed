@@ -109,6 +109,12 @@ export function AddExpenseModal({
   };
 
   const handleCancel = () => {
+    const hasData = formData.name || formData.reason || formData.amount > 0 || analysis;
+    if (hasData) {
+      if (!window.confirm("Are you sure you want to discard this expense request? Your progress will be lost.")) {
+        return;
+      }
+    }
     resetForm();
     onClose();
   };

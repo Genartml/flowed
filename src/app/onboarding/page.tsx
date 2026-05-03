@@ -43,6 +43,13 @@ export default function OnboardingWizard() {
     setLoading(true);
     setError(null);
 
+    // Backend validation for negative values
+    if (Number(totalFunds) < 0 || Number(baselineOverhead) < 0 || Number(monthlyIncome) < 0) {
+      setError("Financial values cannot be negative.");
+      setLoading(false);
+      return;
+    }
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -188,14 +195,24 @@ export default function OnboardingWizard() {
                 >
                   Back
                 </Button>
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  disabled={!companyName}
-                  className="bg-zinc-100 text-zinc-950 hover:bg-white font-semibold px-8 h-12 rounded-xl"
-                >
-                  Continue <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={nextStep}
+                    className="border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 font-semibold h-12 rounded-xl"
+                  >
+                    Skip for now
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    disabled={!companyName}
+                    className="bg-zinc-100 text-zinc-950 hover:bg-white font-semibold px-8 h-12 rounded-xl"
+                  >
+                    Continue <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}
@@ -223,6 +240,8 @@ export default function OnboardingWizard() {
                 <Input
                   id="totalFunds"
                   type="number"
+                  min="0"
+                  step="any"
                   value={totalFunds}
                   onChange={(e) => setTotalFunds(e.target.value)}
                   placeholder="e.g. 50000"
@@ -273,6 +292,8 @@ export default function OnboardingWizard() {
                 <Input
                   id="baselineOverhead"
                   type="number"
+                  min="0"
+                  step="any"
                   value={baselineOverhead}
                   onChange={(e) => setBaselineOverhead(e.target.value)}
                   placeholder="e.g. 5000"
@@ -325,6 +346,8 @@ export default function OnboardingWizard() {
                 <Input
                   id="monthlyIncome"
                   type="number"
+                  min="0"
+                  step="any"
                   value={monthlyIncome}
                   onChange={(e) => setMonthlyIncome(e.target.value)}
                   placeholder="e.g. 15000"
